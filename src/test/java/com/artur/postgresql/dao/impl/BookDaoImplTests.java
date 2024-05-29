@@ -35,12 +35,41 @@ public class BookDaoImplTests {
     }
 
     @Test
-    public void testThatFindOneGeneratesTheCorrectSql() {
+    public void testThatFindOneGeneratesCorrectSql() {
         underTest.findOne("9780132350884");
         verify(jdbcTemplate).query(
                 eq("SELECT isbn, title, author_id FROM books WHERE isbn = ? LIMIT 1"),
                 ArgumentMatchers.<BookDaoImpl.BookRowMapper>any(),
                 eq("9780132350884")
+        );
+    }
+
+    @Test
+    public void testThatFindManyGeneratesCorrectSql() {
+        underTest.findMany();
+        verify(jdbcTemplate).query(
+                eq("SELECT isbn, title, author_id FROM books"),
+                ArgumentMatchers.<AuthorDaoImpl.AuthorRowMapper>any()
+        );
+    }
+
+    @Test
+    public void testThatUpdateGeneratesCorrectSql() {
+        Book book = TestDataUtil.createTestBook();
+        underTest.update("9780132350884", book);
+
+        verify(jdbcTemplate).update(
+                "UPDATE books SET isbn = ?, title = ?, author_id = ? WHERE isbn = ?",
+                "9780132350884", "Clean Code", 1L, "9780132350884"
+        );
+    }
+
+    @Test
+    public void testThatDeleteGenerateCorrectSql() {
+        underTest.delete("9780132350884");
+        verify(jdbcTemplate).update(
+                "DELETE FROM books WHERE isbn = ?",
+                "9780132350884"
         );
     }
 }

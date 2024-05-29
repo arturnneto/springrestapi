@@ -15,11 +15,43 @@ public final class TestDataUtil {
                 .build();
     }
 
+    public static Author createTestAuthorB() {
+        return Author.builder()
+                .id(2L)
+                .name("Jonas Simpson")
+                .age(22)
+                .build();
+    }
+
+    public static Author createTestAuthorC() {
+        return Author.builder()
+                .id(3L)
+                .name("Lauren Steward")
+                .age(37)
+                .build();
+    }
+
     public static Book createTestBook() {
         return Book.builder()
                 .isbn("9780132350884")
                 .title("Clean Code")
                 .authorId(1L)
+                .build();
+    }
+
+    public static Book createTestBookB() {
+        return Book.builder()
+                .isbn("0134494164")
+                .title("Clean Architecture")
+                .authorId(2L)
+                .build();
+    }
+
+    public static Book createTestBookC() {
+        return Book.builder()
+                .isbn("8575228374")
+                .title("O Cientista da Computação Autodidata")
+                .authorId(3L)
                 .build();
     }
 }

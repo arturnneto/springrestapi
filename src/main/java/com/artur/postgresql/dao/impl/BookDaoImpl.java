@@ -1,6 +1,7 @@
 package com.artur.postgresql.dao.impl;
 
 import com.artur.postgresql.dao.BookDao;
+import com.artur.postgresql.domain.Author;
 import com.artur.postgresql.domain.Book;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -48,5 +49,29 @@ public class BookDaoImpl implements BookDao {
                     .authorId(rs.getLong("author_id"))
                     .build();
         }
+    }
+
+    @Override
+    public List<Book> findMany() {
+        return jdbcTemplate.query(
+                "SELECT isbn, title, author_id FROM books",
+                new BookRowMapper()
+        );
+    }
+
+    @Override
+    public void update(String isbn, Book book) {
+        jdbcTemplate.update(
+                "UPDATE books SET isbn = ?, title = ?, author_id = ? WHERE isbn = ?",
+                book.getIsbn(), book.getTitle(), book.getAuthorId(), isbn
+        );
+    }
+
+    @Override
+    public void delete(String isbn) {
+        jdbcTemplate.update(
+                "DELETE FROM books WHERE isbn = ?",
+                isbn
+        );
     }
 }
