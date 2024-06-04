@@ -31,27 +31,27 @@ public final class TestDataUtil {
                 .build();
     }
 
-    public static Book createTestBook() {
+    public static Book createTestBook(final Author author) {
         return Book.builder()
                 .isbn("9780132350884")
                 .title("Clean Code")
-                .authorId(1L)
+                .author(author)
                 .build();
     }
 
-    public static Book createTestBookB() {
+    public static Book createTestBookB(final Author author) {
         return Book.builder()
                 .isbn("0134494164")
                 .title("Clean Architecture")
-                .authorId(2L)
+                .author(author)
                 .build();
     }
 
-    public static Book createTestBookC() {
+    public static Book createTestBookC(final Author author) {
         return Book.builder()
                 .isbn("8575228374")
                 .title("O Cientista da Computação Autodidata")
-                .authorId(3L)
+                .author(author)
                 .build();
     }
 }
