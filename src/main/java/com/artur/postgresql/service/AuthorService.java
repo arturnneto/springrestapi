@@ -1,7 +1,7 @@
 package com.artur.postgresql.service;
 
-import com.artur.postgresql.domain.Author;
+import com.artur.postgresql.domain.entities.AuthorEntity;
 
 public interface AuthorService {
-    Author createAuthor(Author author);
+    AuthorEntity createAuthor(AuthorEntity authorEntity);
 }

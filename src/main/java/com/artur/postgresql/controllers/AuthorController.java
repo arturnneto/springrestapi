@@ -1,6 +1,8 @@
 package com.artur.postgresql.controllers;
 
-import com.artur.postgresql.domain.Author;
+import com.artur.postgresql.domain.dto.AuthorDto;
+import com.artur.postgresql.domain.entities.AuthorEntity;
+import com.artur.postgresql.mappers.Mapper;
 import com.artur.postgresql.service.AuthorService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,13 +12,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthorController {
 
     private AuthorService authorService;
+    private Mapper<AuthorEntity, AuthorDto> authorMapper;
 
-    public AuthorController(AuthorService authorService) {
+    public AuthorController(AuthorService authorService, Mapper<AuthorEntity, AuthorDto> authorMapper) {
         this.authorService = authorService;
+        this.authorMapper = authorMapper;
     }
 
     @PostMapping(path = "/authors")
-    public Author createAuthor(@RequestBody Author author) {
-        return authorService.createAuthor(author);
+    public AuthorDto createAuthor(@RequestBody AuthorDto author) {
+        AuthorEntity authorEntity = authorMapper.mapFrom(author);
+        AuthorEntity savedAuthorEntity = authorService.createAuthor(authorEntity);
+        return authorMapper.mapTo(savedAuthorEntity);
     }
 }
