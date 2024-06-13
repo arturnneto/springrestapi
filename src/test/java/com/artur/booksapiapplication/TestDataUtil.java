@@ -1,5 +1,7 @@
 package com.artur.booksapiapplication;
 
+import com.artur.booksapiapplication.domain.dto.AuthorDto;
+import com.artur.booksapiapplication.domain.dto.BookDto;
 import com.artur.booksapiapplication.domain.entities.AuthorEntity;
 import com.artur.booksapiapplication.domain.entities.BookEntity;
 
@@ -52,6 +54,14 @@ public final class TestDataUtil {
                 .isbn("8575228374")
                 .title("O Cientista da Computação Autodidata")
                 .authorEntity(authorEntity)
+                .build();
+    }
+
+    public static BookDto createTestBookDto(final AuthorDto authorDto) {
+        return BookDto.builder()
+                .isbn("9780132350884")
+                .title("Clean Code")
+                .author(authorDto)
                 .build();
     }
 }
