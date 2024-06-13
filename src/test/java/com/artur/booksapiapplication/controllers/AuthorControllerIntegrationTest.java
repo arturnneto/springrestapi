@@ -2,7 +2,9 @@ package com.artur.booksapiapplication.controllers;
 
 import com.artur.booksapiapplication.TestDataUtil;
 import com.artur.booksapiapplication.domain.entities.AuthorEntity;
+import com.artur.booksapiapplication.service.AuthorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.event.annotation.BeforeTestClass;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -21,11 +24,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @AutoConfigureMockMvc
 public class AuthorControllerIntegrationTest {
 
+    private AuthorService authorService;
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
 
     @Autowired
-    public AuthorControllerIntegrationTest(MockMvc mockMvc) {
+    public AuthorControllerIntegrationTest(MockMvc mockMvc, ObjectMapper objectMapper, AuthorService authorService) {
+        this.authorService = authorService;
         this.mockMvc = mockMvc;
         this.objectMapper = new ObjectMapper();
     }
@@ -61,6 +66,33 @@ public class AuthorControllerIntegrationTest {
                 MockMvcResultMatchers.jsonPath("$.name").value(testAuthor.getName()) // Expected: Abigail Rose
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$.age").value(testAuthor.getAge()) // Expected: 80
+        );
+    }
+
+    @Test
+    public void testThatListAuthorsSuccessfullyReturnsHttp200Ok() throws Exception {
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/authors")
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isOk()
+        );
+    }
+
+    @Test
+    public void testThatListAuthorsSuccessfullyReturnsListOfAuthors() throws Exception {
+        AuthorEntity testAuthor = TestDataUtil.createTestAuthor();
+        authorService.save(testAuthor);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/authors")
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].id").isNumber()
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].name").value(testAuthor.getName()) // Expected: Abigail Rose
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].age").value(testAuthor.getAge()) // Expected: 80
         );
     }
 }
