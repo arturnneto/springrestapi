@@ -1,6 +1,8 @@
 package com.artur.booksapiapplication.controllers;
 
+import com.artur.booksapiapplication.domain.dto.AuthorDto;
 import com.artur.booksapiapplication.domain.dto.BookDto;
+import com.artur.booksapiapplication.domain.entities.AuthorEntity;
 import com.artur.booksapiapplication.domain.entities.BookEntity;
 import com.artur.booksapiapplication.mappers.Mapper;
 import com.artur.booksapiapplication.service.BookService;
@@ -9,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -36,5 +39,14 @@ public class BookController {
     public List<BookDto> listBooks() {
         List<BookEntity> bookList = bookService.findAll();
         return bookList.stream().map(bookMapper::mapTo).collect(Collectors.toList());
+    }
+
+    @GetMapping(path = "/books/{isbn}")
+    public ResponseEntity<BookDto> getBook(@PathVariable("isbn") String isbn) {
+        Optional<BookEntity> retrievedBook = bookService.findOne(isbn);
+        return retrievedBook.map(bookEntity -> {
+            BookDto bookDto = bookMapper.mapTo(bookEntity);
+            return new ResponseEntity<>(bookDto, HttpStatus.OK);
+        }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }
