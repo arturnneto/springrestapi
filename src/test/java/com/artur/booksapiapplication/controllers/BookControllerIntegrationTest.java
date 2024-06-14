@@ -3,9 +3,7 @@ package com.artur.booksapiapplication.controllers;
 import com.artur.booksapiapplication.TestDataUtil;
 import com.artur.booksapiapplication.domain.dto.BookDto;
 import com.artur.booksapiapplication.domain.entities.BookEntity;
-import com.artur.booksapiapplication.mappers.impl.BookMapper;
 import com.artur.booksapiapplication.service.BookService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -88,6 +86,45 @@ public class BookControllerIntegrationTest {
                 MockMvcResultMatchers.jsonPath("$[0].isbn").value(testBook.getIsbn())
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$[0].title").value(testBook.getTitle())
+        );
+    }
+
+    @Test
+    public void testThatGetOneBookSuccessfullyReturnsHttp200WhenBookIsPresent() throws Exception {
+        BookEntity testBook = TestDataUtil.createTestBook(null);
+        bookService.save(testBook.getIsbn(), testBook);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/books/" + testBook.getIsbn())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isOk()
+        );
+    }
+
+    @Test
+    public void testThatGetOneBookSuccessfullyReturnsHttp404WhenBookIsNotPresent() throws Exception {
+        BookEntity testBook = TestDataUtil.createTestBook(null);
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/books/" + testBook.getIsbn())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isNotFound()
+        );
+    }
+
+    @Test
+    public void testThatGetOneBookSuccessfullyReturnsBookWhenABookIsPresent() throws Exception {
+        BookEntity testBook = TestDataUtil.createTestBook(null);
+        bookService.save(testBook.getIsbn(), testBook);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/books/" + testBook.getIsbn())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.isbn").value(testBook.getIsbn())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.title").value(testBook.getTitle()) // Expected: Abigail Rose
         );
     }
 
