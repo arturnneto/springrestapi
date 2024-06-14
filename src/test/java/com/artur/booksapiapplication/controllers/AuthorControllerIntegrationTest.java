@@ -1,6 +1,7 @@
 package com.artur.booksapiapplication.controllers;
 
 import com.artur.booksapiapplication.TestDataUtil;
+import com.artur.booksapiapplication.domain.dto.AuthorDto;
 import com.artur.booksapiapplication.domain.entities.AuthorEntity;
 import com.artur.booksapiapplication.service.AuthorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -133,6 +134,60 @@ public class AuthorControllerIntegrationTest {
                 MockMvcResultMatchers.jsonPath("$.name").value(testAuthor.getName()) // Expected: Abigail Rose
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$.age").value(testAuthor.getAge()) // Expected: 80
+        );
+    }
+
+    @Test
+    public void testThatFullUpdateAuthorSuccessfullyReturnsHttp200WhenAuthorExists() throws Exception {
+        AuthorEntity testAuthorEntity = TestDataUtil.createTestAuthor();
+        AuthorEntity savedAuthor = authorService.save(testAuthorEntity);
+
+        AuthorDto testAuthorDto = TestDataUtil.createTestAuthorDto();
+        String authorJson = objectMapper.writeValueAsString(testAuthorDto);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/authors/" + savedAuthor.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(authorJson)
+        ).andExpect(
+                MockMvcResultMatchers.status().isOk()
+        );
+    }
+
+    @Test
+    public void testThatFullUpdateAuthorSuccessfullyReturnsHttp404WhenAuthorExists() throws Exception {
+        AuthorDto testAuthorDto = TestDataUtil.createTestAuthorDto();
+        String testAuthorJson = objectMapper.writeValueAsString(testAuthorDto);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/authors/99")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(testAuthorJson)
+        ).andExpect(
+                MockMvcResultMatchers.status().isNotFound()
+        );
+    }
+
+    @Test
+    public void testThatFullUpdateAuthorSuccessfullyUpdatesExistingAuthor() throws Exception {
+        AuthorEntity testAuthorEntity = TestDataUtil.createTestAuthor();
+        AuthorEntity savedAuthor = authorService.save(testAuthorEntity);
+
+        AuthorEntity testAuthorDto = TestDataUtil.createTestAuthorB();
+        testAuthorDto.setId(savedAuthor.getId());
+
+        String authorDtoUpdateJson = objectMapper.writeValueAsString(testAuthorDto);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.put("/authors/" + savedAuthor.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(authorDtoUpdateJson)
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.id").value(savedAuthor.getId())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.name").value(testAuthorDto.getName())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.age").value(testAuthorDto.getAge())
         );
     }
 }
