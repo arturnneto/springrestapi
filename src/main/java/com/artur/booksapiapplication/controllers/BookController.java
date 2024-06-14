@@ -6,10 +6,10 @@ import com.artur.booksapiapplication.mappers.Mapper;
 import com.artur.booksapiapplication.service.BookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class BookController {
@@ -30,5 +30,11 @@ public class BookController {
         BookDto savedBookDto = bookMapper.mapTo(savedBookEntity);
 
         return new ResponseEntity<>(savedBookDto, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/books")
+    public List<BookDto> listBooks() {
+        List<BookEntity> bookList = bookService.findAll();
+        return bookList.stream().map(bookMapper::mapTo).collect(Collectors.toList());
     }
 }
