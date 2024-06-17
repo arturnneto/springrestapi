@@ -229,4 +229,27 @@ public class BookControllerIntegrationTest {
         );
     }
 
+    @Test
+    public void testThatDeleteBookReturnsHttpStatus240WhenBookDoesExists() throws Exception {
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/books/9999")
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isNoContent()
+        );
+    }
+
+    @Test
+    public void testThatDeleteBookReturnsHttpStatus240WhenBookDoesNotExists() throws Exception {
+        BookEntity testBook = TestDataUtil.createTestBook(null);
+        BookEntity savedBook =  bookService.save(testBook.getIsbn(), testBook);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/books/" + savedBook.getIsbn())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isNoContent()
+        );
+    }
+
 }
