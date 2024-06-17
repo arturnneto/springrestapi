@@ -146,7 +146,7 @@ public class AuthorControllerIntegrationTest {
         String authorJson = objectMapper.writeValueAsString(testAuthorDto);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/authors/" + savedAuthor.getId())
+                MockMvcRequestBuilders.put("/authors/" + savedAuthor.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(authorJson)
         ).andExpect(
@@ -155,12 +155,12 @@ public class AuthorControllerIntegrationTest {
     }
 
     @Test
-    public void testThatFullUpdateAuthorSuccessfullyReturnsHttp404WhenAuthorExists() throws Exception {
+    public void testThatFullUpdateAuthorSuccessfullyReturnsHttp404WhenAuthorDoesNotExists() throws Exception {
         AuthorDto testAuthorDto = TestDataUtil.createTestAuthorDto();
         String testAuthorJson = objectMapper.writeValueAsString(testAuthorDto);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/authors/99")
+                MockMvcRequestBuilders.put("/authors/99")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(testAuthorJson)
         ).andExpect(
@@ -186,6 +186,63 @@ public class AuthorControllerIntegrationTest {
                 MockMvcResultMatchers.jsonPath("$.id").value(savedAuthor.getId())
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$.name").value(testAuthorDto.getName())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.age").value(testAuthorDto.getAge())
+        );
+    }
+
+    @Test
+    public void testThatPartialUpdateAuthorSuccessfullyReturnsHttp200WhenOk() throws Exception {
+        AuthorEntity testAuthorEntity = TestDataUtil.createTestAuthor();
+        AuthorEntity savedAuthor = authorService.save(testAuthorEntity);
+
+        AuthorDto testAuthorDto = TestDataUtil.createTestAuthorDto();
+        testAuthorDto.setName("UPDATED");
+        String authorJson = objectMapper.writeValueAsString(testAuthorDto);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.patch("/authors/" + savedAuthor.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(authorJson)
+        ).andExpect(
+                MockMvcResultMatchers.status().isOk()
+        );
+    }
+
+    @Test
+    public void testThatPartialUpdateAuthorSuccessfullyReturnsHttp404WhenAuthorIsNotFound() throws Exception {
+        AuthorDto testAuthorDto = TestDataUtil.createTestAuthorDto();
+        testAuthorDto.setName("UPDATED");
+        String authorJson = objectMapper.writeValueAsString(testAuthorDto);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.patch("/authors/" + testAuthorDto.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(authorJson)
+        ).andExpect(
+                MockMvcResultMatchers.status().isNotFound()
+        );
+    }
+
+    @Test
+    public void testThatPartialUpdateAuthorSuccessfullyReturnsHUpdatedAuthor() throws Exception {
+        AuthorEntity testAuthorEntity = TestDataUtil.createTestAuthor();
+        AuthorEntity savedAuthor = authorService.save(testAuthorEntity);
+
+        AuthorEntity testAuthorEntityB = TestDataUtil.createTestAuthorB();
+
+        AuthorDto testAuthorDto = TestDataUtil.createTestAuthorDto();
+        testAuthorDto.setName(testAuthorEntityB.getName());
+        String authorJson = objectMapper.writeValueAsString(testAuthorDto);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.patch("/authors/" + savedAuthor.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(authorJson)
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.id").value(savedAuthor.getId())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.name").value(testAuthorEntityB.getName())
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$.age").value(testAuthorDto.getAge())
         );
